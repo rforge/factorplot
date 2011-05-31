@@ -1,0 +1,5 @@
+export(factorplot, factorplot2, squares)
+
+S3method(print, factorplot)
+S3method(summary, factorplot)
+S3method(plot, factorplot)
