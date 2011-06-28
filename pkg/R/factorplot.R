@@ -125,7 +125,7 @@ squares <- function(ll, width=1,col){
     polygon(poly.x, poly.y, col=col)
 }
 
-plot.factorplot <- function(x, ..., bonferroni=TRUE, abbrev.char=10, polycol=NULL, textcol = NULL, trans=NULL){
+plot.factorplot <- function(x, ..., bonferroni=TRUE, abbrev.char=10, polycol=NULL, textcol = NULL, trans=NULL, sig.legend=T, num.legend=T){
 r.bdiff <- x$b.diff[rev(1:nrow(x$b.diff)), ]
 r.bsd <- x$b.sd[rev(1:nrow(x$b.sd)), ]
 
@@ -184,11 +184,17 @@ m <- m+1
 }
 leg <- legend(1,1, c("Significantly < 0", "Not Significant", "Significantly > 0"), fill=colvec, 
     bty="n", xjust=0, yjust=0, title=paste("Bonferroni = ", bonferroni, sep=""), 
-    cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
+    cex=ifelse(nrow(x$b.diff) == 2, .75, 1), plot=F)
+if(sig.legend==T){
+	legend(1,1, c("Significantly < 0", "Not Significant", "Significantly > 0"), fill=colvec, 
+	    bty="n", xjust=0, yjust=0, title=paste("Bonferroni = ", bonferroni, sep=""), 
+	    cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
+}
+if(num.legend==T){
 legend(1+leg$rect$w, 1, c(expression(bold("bold = ")~b[row]-b[col]), 
     expression(italic("ital = ")~SE(b[row]-b[col]))), xjust=0, yjust=0, bty="n",
     cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
-
+}
 }
 
 print.factorplot <- function(x, ..., digits=3, sig=FALSE, trans=NULL){
