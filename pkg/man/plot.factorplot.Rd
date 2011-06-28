@@ -15,6 +15,8 @@
   \item{polycol}{A vector of three colors indicating the colors of polygons when the difference is significant negative, insignificant, and significant positive, in that order.  Defaults to c(\sQuote{gray80}, \sQuote{white}, \sQuote{gray40}).}
   \item{textcol}{A vector of three colors indicating the text color for polygons that are significant negative, insignificant, and significant positive, in that order.  Defaults to c(\sQuote{black}, \sQuote{black}, \sQuote{white})}
   \item{trans}{A character string representing the post-hypothesis-testing transformation to be performed on the estimates.  For example, if the estimates provided to the \code{factorplot} command are log-floating absolute risks, you could use the transformation \sQuote{exp}.  The transformation is performed through a call to \code{do.call}}
+  \item{sig.legend}{logical indicating whether the legend identifying the meaning of the different colors should be included.}
+  \item{num.legend}{logical indicating whether the legend identifying the meaning of the numbers in each square should be included.}
   \item{...}{Other arguments to be passed to plot, currently not implemented}
 }
 \value{
