@@ -5,6 +5,7 @@ Version: 1.0
 Date: 2010-07-20
 Author: Dave Armstrong (Department of Political Science, UW-Milwaukee)
 Maintainer: Dave Armstrong <davearmstrong.ps@gmail.com>
+Depends: multcomp
 Description: Calculate, print, summarize and plot pairwise difference among all coefficients relating to a factor in (G)LMs
 License: GPL (>=2)
 LazyLoad: yes

@@ -4,19 +4,18 @@
 \description{Creates a plot akin to an upper-triangular levelplot (though using \code{plot} rather than \code{levelplot}) where the coloring of the squares represents significance and text inside the squares represents the pairwise difference and its correspopnding standard error. 
 }
 \usage{
-\method{plot}{factorplot}(x, ..., bonferroni=TRUE, abbrev.char=10, 
-	polycol=NULL, textcol=NULL, trans=NULL)
+\method{plot}{factorplot}(x, ..., abbrev.char=10, polycol=NULL, 
+	textcol=NULL, trans=NULL, print.sig.leg=TRUE, print.square.leg=TRUE)
 }
 \arguments{
   \item{x}{An object of class factorplot, produced by \code{\link{factorplot}}.
 }
-  \item{bonferroni}{logical indicating whether pairwise hypothesis tests should be done with unadjusted p-values (FALSE) or Bonferroni-corrected p-values (TRUE).}
   \item{abbrev.char}{The number of characters that should be used to abbreviate the levels of the factor.  Set to a large value for unabbreviated names.}
   \item{polycol}{A vector of three colors indicating the colors of polygons when the difference is significant negative, insignificant, and significant positive, in that order.  Defaults to c(\sQuote{gray80}, \sQuote{white}, \sQuote{gray40}).}
   \item{textcol}{A vector of three colors indicating the text color for polygons that are significant negative, insignificant, and significant positive, in that order.  Defaults to c(\sQuote{black}, \sQuote{black}, \sQuote{white})}
   \item{trans}{A character string representing the post-hypothesis-testing transformation to be performed on the estimates.  For example, if the estimates provided to the \code{factorplot} command are log-floating absolute risks, you could use the transformation \sQuote{exp}.  The transformation is performed through a call to \code{do.call}}
-  \item{sig.legend}{logical indicating whether the legend identifying the meaning of the different colors should be included.}
-  \item{num.legend}{logical indicating whether the legend identifying the meaning of the numbers in each square should be included.}
+  \item{print.sig.leg}{logical indicating whether the legend identifying the meaning of the different colors should be included.}
+  \item{print.square.leg}{logical indicating whether the legend identifying the meaning of the numbers in each square should be included.}
   \item{...}{Other arguments to be passed to plot, currently not implemented}
 }
 \value{

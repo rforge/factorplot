@@ -1,4 +1,5 @@
-factorplot <-function(obj, factor.variable=NULL, pval=0.05, two.sided=TRUE, order="natural"){
+factorplot <-function(obj, factor.variable=NULL, pval=0.05, two.sided=TRUE, order="natural", adjust.method="none"){
+require(multcomp)
 tmp.classes <- attr(terms(obj), "dataClasses")
 tmp.classes <- tmp.classes[tmp.classes == "factor"]
 tmp.levs <- NULL
@@ -60,14 +61,14 @@ cns.out <- sapply(cns.split, paste, collapse="_")
 rownames(b.t) <- rownames(b.diff) <- rownames(b.sd) <- rns.out
 colnames(b.t) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
 b.p <- (2^(as.numeric(two.sided)))*pt(abs(b.t), obj$df.residual,lower.tail=FALSE)
-b.bp <- sum(!is.na(c(b.t)))*(2^(as.numeric(two.sided)))*pt(abs(b.t), obj$df.residual, lower.tail=FALSE)
-b.bp[which(b.bp > 1, arr.ind=T)] <- 1
-ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.p, bon.pval = b.bp, p = pval)
+b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
+ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.p, adj.pval = b.bp, p = pval)
 class(ret) <- c("factorplot", "list")
 return(ret)
 }
 
-factorplot2 <-function(est, var, resdf, pval=0.05, two.sided=TRUE, order="natural"){
+factorplot2 <-function(est, var, resdf, pval=0.05, two.sided=TRUE, order="natural", adjust.method="none"){
+require(multcomp)
 b <- est
 if(!is.matrix(var)){
 	v <- diag(var)
@@ -112,9 +113,8 @@ cns.out <- sapply(cns.split, paste, collapse="_")
 rownames(b.t) <- rownames(b.diff) <- rownames(b.sd) <- rns.out
 colnames(b.t) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
 b.p <- (2^(as.numeric(two.sided)))*pt(abs(b.t), resdf,lower.tail=FALSE)
-b.bp <- sum(!is.na(c(b.t)))*(2^(as.numeric(two.sided)))*pt(abs(b.t), resdf, lower.tail=FALSE)
-b.bp[which(b.bp > 1, arr.ind=T)] <- 1
-ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.p, bon.pval = b.bp, p = pval)
+b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
+ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.p, adj.pval = b.bp, p = pval)
 class(ret) <- c("factorplot", "list")
 return(ret)
 }
@@ -125,16 +125,11 @@ squares <- function(ll, width=1,col){
     polygon(poly.x, poly.y, col=col)
 }
 
-plot.factorplot <- function(x, ..., bonferroni=TRUE, abbrev.char=10, polycol=NULL, textcol = NULL, trans=NULL, sig.legend=T, num.legend=T){
+plot.factorplot <- function(x, ..., abbrev.char=10, polycol=NULL, textcol = NULL, trans=NULL, 
+	print.sig.leg=TRUE, print.square.leg=TRUE){
 r.bdiff <- x$b.diff[rev(1:nrow(x$b.diff)), ]
 r.bsd <- x$b.sd[rev(1:nrow(x$b.sd)), ]
-
-if(bonferroni){
-    use.pval <- x$bon.pval
-    }
-    else{
-    use.pval <- x$pval
-    }
+use.pval <- x$adj.pval
 cns.out <- abbreviate(colnames(x$b.diff), abbrev.char)
 rns.out <- abbreviate(rownames(x$b.diff), abbrev.char)
 
@@ -182,18 +177,20 @@ for(i in rseq){
     }
 m <- m+1
 }
+if(print.sig.leg){
 leg <- legend(1,1, c("Significantly < 0", "Not Significant", "Significantly > 0"), fill=colvec, 
-    bty="n", xjust=0, yjust=0, title=paste("Bonferroni = ", bonferroni, sep=""), 
-    cex=ifelse(nrow(x$b.diff) == 2, .75, 1), plot=F)
-if(sig.legend==T){
-	legend(1,1, c("Significantly < 0", "Not Significant", "Significantly > 0"), fill=colvec, 
-	    bty="n", xjust=0, yjust=0, title=paste("Bonferroni = ", bonferroni, sep=""), 
-	    cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
+    bty="n", xjust=0, yjust=0, cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
 }
-if(num.legend==T){
-legend(1+leg$rect$w, 1, c(expression(bold("bold = ")~b[row]-b[col]), 
-    expression(italic("ital = ")~SE(b[row]-b[col]))), xjust=0, yjust=0, bty="n",
-    cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
+if(print.square.leg){
+	if(exists("leg")){	
+		legend(1+leg$rect$w, 1, c(expression(bold("bold = ")~b[row]-b[col]), 
+    		expression(italic("ital = ")~SE(b[row]-b[col]))), xjust=0, yjust=0, bty="n",
+    		cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
+	}else{
+		legend(1, 1, c(expression(bold("bold = ")~b[row]-b[col]), 
+    		expression(italic("ital = ")~SE(b[row]-b[col]))), xjust=0, yjust=0, bty="n",
+    		cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
+	}
 }
 }
 
@@ -205,17 +202,16 @@ print.factorplot <- function(x, ..., digits=3, sig=FALSE, trans=NULL){
 	if(!is.null(trans)){
 		x$b.diff <- do.call(trans, list(x$b.diff))
 	}
-	tmp <- cbind(c(x$b.diff), c(x$b.sd), c(x$pval), c(x$bon.pval))
+	tmp <- cbind(c(x$b.diff), c(x$b.sd), c(x$adj.pval))
 	tmp <- round(tmp, 3)
 	rownames(tmp) <- strnames
-	colnames(tmp) <- c("Difference", "SE", "p.val", "bon_p.val")
+	colnames(tmp) <- c("Difference", "SE", "p.val")
 	tmp <- as.data.frame(tmp)
 	tmp <- na.omit(tmp)
 	if(sig == TRUE){
+		if(any(tmp$p.val > x$p)){
 		tmp <- tmp[-which(tmp$p.val > x$p), ]
-	}
-	if(sig == "bon"){
-		tmp <- tmp[-which(tmp$bon_p.val > x$p), ]
+		}
 	}
 	t1c <- do.call(rbind, strsplit(as.character(tmp[,1]), split=".", fixed=T))
 	t1mc <- apply(t1c, 2, function(x)max(nchar(x)))
@@ -225,7 +221,6 @@ print.factorplot <- function(x, ..., digits=3, sig=FALSE, trans=NULL){
 	tmp[,1] <- sprintf(paste("%*.", digits, "f", sep=""),t1mc[1], tmp[,1])
 	tmp[,2] <- sprintf(paste("%*.", digits, "f", sep=""),t2mc[1], tmp[,2])
 	tmp[,3] <- sprintf(paste("%1.", digits, "f", sep=""),tmp[,3])
-	tmp[,4] <- sprintf(paste("%1.", digits, "f", sep=""),tmp[,4])
 	tmp
 }
 
@@ -242,24 +237,14 @@ summary.factorplot <- function(object, ...){
 	tmp.p[lower.tri(tmp.p)] <- t(tmp.p)[lower.tri(t(tmp.p))]
 	rownames(tmp.p)[nrow(tmp.p)] <- colnames(tmp.p)[ncol(tmp.p)]
 	colnames(tmp.p)[1] <- rownames(tmp.p)[1]
-	tmp.bonp <- object$bon.pval
-	tmp.bonp <- cbind(NA, tmp.bonp)
-	tmp.bonp <- rbind(tmp.bonp, NA)
-	tmp.bonp[lower.tri(tmp.bonp)] <- t(tmp.bonp)[lower.tri(t(tmp.bonp))]
-	rownames(tmp.bonp)[nrow(tmp.bonp)] <- colnames(tmp.bonp)[ncol(tmp.bonp)]
-	colnames(tmp.bonp)[1] <- rownames(tmp.bonp)[1]
-	diag(tmp.p) <- diag(tmp.bonp) <- 1
-	tmp1 <- tmp2 <- tmp
+	diag(tmp.p) <- 1
+	tmp1 <- tmp
 	tmp1[which(tmp.p > object$p, arr.ind=T)] <- 0
-	tmp2[which(tmp.bonp > object$p, arr.ind=T)] <- 0
 	sig.plus <- apply(tmp1, 1, function(object)sum(object > 0))
 	sig.minus <- apply(tmp1, 1, function(object)sum(object < 0))
-	bonsig.plus <- apply(tmp2, 1, function(object)sum(object > 0))
-	bonsig.minus <- apply(tmp2, 1, function(object)sum(object < 0))
 	insig <- (nrow(tmp) -1) - (sig.plus + sig.minus)
-	boninsig <- (nrow(tmp) - 1) - (bonsig.plus + bonsig.minus)
-    out <- cbind(sig.plus, sig.minus, insig, bonsig.plus, bonsig.minus, boninsig)
-    colnames(out) <- c("sig+", "sig-", "insig", "bon_sig+", "bon_sig-", "bon_insig")
+    out <- cbind(sig.plus, sig.minus, insig)
+    colnames(out) <- c("sig+", "sig-", "insig")
     out
 }
 

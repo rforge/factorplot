@@ -12,7 +12,7 @@
   \item{digits}{The number of digits to print in each column
 }
 \item{trans}{A character string representing the post-hypothesis-testing transformation to be performed on the estimates.  For example, if the estimates provided to the \code{factorplot} command are log-floating absolute risks, you could use the transformation \sQuote{exp}.  The transformation is performed through a call to \code{do.call}}
-  \item{sig}{Should be one of \sQuote{FALSE} (default), \sQuote{TRUE} or \sQuote{bon} indicating whether all differences, only significant differences using unadjusted p-values or only bonferroni-corrected significant differences, respectively, should be printed}
+  \item{sig}{Logical indicating whether only significant differences should be printed.}
   \item{...}{Other arguments passed to print, currently not implemented}
 }
 \author{Dave Armstrong (Department of Political Science, UW-Milwaukee)
