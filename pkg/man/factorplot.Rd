@@ -15,7 +15,7 @@ factorplot(obj, factor.variable=NULL, pval = 0.05,
   \item{pval}{The (uncorrected) Type I error probability required, defaults to 0.05}
   \item{two.sided}{Logical argument indicating whether the hypothesis test should be against a two-sided alternative if TRUE (default) or a one-sided alternative if FALSE}
   \item{order}{One of \sQuote{natural}, \sQuote{alph}, or \sQuote{size} indicating how the levels of the factor should be ordered for presentation.  The \sQuote{natural} option (the default) leaves the levels as they are in the factor contrasts.  \sQuote{alph} sorts the levels alphabetically and \sQuote{size} sorts the levels by size of coefficient.}
-  \item{adjust.method}{One of the methods allowed by \code{\link{p.adjust}} in \pkg{multcomp} - \sQuote{holm}, \sQuote{hochberg}, \sQuote{hommel}, \sQuote{bonferroni}, \sQuote{BH}, \sQuote{BY}, \sQuote{fdr}, \sQuote{none}.  See help for the \code{p.adjust} for more information on these different adjustment methods}	
+  \item{adjust.method}{One of the methods allowed by \code{\link{p.adjust}} in \pkg{stats} - \sQuote{holm}, \sQuote{hochberg}, \sQuote{hommel}, \sQuote{bonferroni}, \sQuote{BH}, \sQuote{BY}, \sQuote{fdr}, \sQuote{none}.  See help for the \code{p.adjust} for more information on these different adjustment methods}	
 }
 \details{
 This function calculates all pairwise differences in the coefficients for factor covariates in linear models and GLMs.  Specifically, it calculates:\cr\cr
