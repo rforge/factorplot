@@ -30,7 +30,7 @@ While the factorplot function and its print and summary methods work equally wel
 \item{p}{The p-value specified in the command}
 }
 \references{
-Easton, D.F., J. Peto and G.A.G. Babiker. 1991. Floating absolute risk: kAn alternative to relative risk in survival and case control analysis avoiding an arbitrary reference group.  \emph{Statistics in Medicine} \bold{10}: 1025--1035.\cr
+Easton, D.F., J. Peto and G.A.G. Babiker. 1991. Floating absolute risk: An alternative to relative risk in survival and case control analysis avoiding an arbitrary reference group.  \emph{Statistics in Medicine} \bold{10}: 1025--1035.\cr
 Firth, David and Renee X. de Menzes.  2004.  Quasi-variances.  \emph{Biometrika} \bold{91.1}: 65--80.\cr
 Plummer, M. 2004. Improved estimates of floating absolute risk.  \emph{Statistics in Medicine} \bold{23}: 93--104.\cr}
 \author{Dave Armstrong (Department of Political Science, UW-Milwaukee)}
