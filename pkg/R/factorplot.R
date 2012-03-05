@@ -138,9 +138,9 @@ tmarg <- max(strwidth(cns.out, units="inches"))
 par(mai=c(0,ymarg,tmarg,0), oma=c(0,0,1,0))
 plot(c(1,nrow(x$b.diff)+1), 
     c(1, nrow(x$b.diff)+1), type="n", main="", xlab="", ylab="", axes=FALSE)
-axis(3, at=seq(from=1.5, to=nrow(x$b.diff)+.5, by=1), labels=cns.out, 
+axis(3, at=seq(from=1.5, to=nrow(x$b.diff)+.5, by=1), labels=gsub("_", " ", cns.out, fixed=T), 
     tick=FALSE, lwd=0, line=-1, las=2)
-axis(2, at=seq(from=1.5, to=nrow(x$b.diff)+.5, by=1), labels=rev(rns.out), 
+axis(2, at=seq(from=1.5, to=nrow(x$b.diff)+.5, by=1), labels=rev(gsub("_", " ", rns.out, fixed=T)), 
     tick=FALSE, lwd=0, line=-1, las=1)
 rseq <- rev(1:nrow(x$b.diff))
 
