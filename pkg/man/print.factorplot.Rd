@@ -1,7 +1,7 @@
 \name{print.factorplot}
 \alias{print.factorplot}
 \title{Print method for objects of class factorplot}
-\description{Prints the output from an object of class \code{\link{factorplot}}.  By default, the function prints all pairwise differences along with standard errors and p-values (both unadjusted and bonferroni-corrected). Optionally, it can print only significant differences.}
+\description{Prints the output from an object of class \code{\link{factorplot}}.  By default, the function prints all pairwise differences along with standard errors and p-values (optionally adjusted for multiple testing). Optionally, it can print only significant differences.}
 \usage{
 \method{print}{factorplot}(x, ..., digits = 3, sig = FALSE, trans=NULL)
 }
