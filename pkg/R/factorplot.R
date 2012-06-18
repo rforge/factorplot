@@ -231,7 +231,7 @@ summary.factorplot <- function(object, ...){
 	rownames(tmp)[nrow(tmp)] <- colnames(tmp)[ncol(tmp)]
 	colnames(tmp)[1] <- rownames(tmp)[1]
 	tmp[lower.tri(tmp)] <- -t(tmp)[lower.tri(t(tmp))]
-	tmp.p <- object$pval
+	tmp.p <- object$adj.pval
 	tmp.p <- cbind(NA, tmp.p)
 	tmp.p <- rbind(tmp.p, NA)
 	tmp.p[lower.tri(tmp.p)] <- t(tmp.p)[lower.tri(t(tmp.p))]
