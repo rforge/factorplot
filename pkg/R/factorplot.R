@@ -177,22 +177,15 @@ for(i in rseq){
     }
 m <- m+1
 }
-if(print.sig.leg){
 leg <- legend(1,1, c("Significantly < 0", "Not Significant", "Significantly > 0"), fill=colvec, 
-    bty="n", xjust=0, yjust=0, cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
+    bty="n", xjust=0, yjust=0, cex=ifelse(nrow(x$b.diff) == 2, .75, 1), plot=print.sig.leg)
+legend(1+leg$rect$w*as.numeric(print.sig.leg), 1, c(expression(bold("bold = ")~b[row]-b[col]), 
+	expression(italic("ital = ")~SE(b[row]-b[col]))), xjust=0, yjust=0, bty="n",
+	cex=ifelse(nrow(x$b.diff) == 2, .75, 1), plot=print.square.leg)
 }
-if(print.square.leg){
-	if(exists("leg")){	
-		legend(1+leg$rect$w, 1, c(expression(bold("bold = ")~b[row]-b[col]), 
-    		expression(italic("ital = ")~SE(b[row]-b[col]))), xjust=0, yjust=0, bty="n",
-    		cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
-	}else{
-		legend(1, 1, c(expression(bold("bold = ")~b[row]-b[col]), 
-    		expression(italic("ital = ")~SE(b[row]-b[col]))), xjust=0, yjust=0, bty="n",
-    		cex=ifelse(nrow(x$b.diff) == 2, .75, 1))
-	}
-}
-}
+
+
+
 
 print.factorplot <- function(x, ..., digits=3, sig=FALSE, trans=NULL){
 	eg <- expand.grid(rownames(x$b.diff), colnames(x$b.diff))
