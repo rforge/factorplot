@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{factorplot}(x, ..., abbrev.char=10, polycol=NULL, 
 	textcol=NULL, trans=NULL, print.sig.leg=TRUE, print.square.leg=TRUE, 
-	scale.text=1, space.text=1)
+	scale.text=1, space.text=1, print.est = TRUE, print.se=TRUE)
 }
 \arguments{
   \item{x}{An object of class factorplot, produced by \code{\link{factorplot}}.
@@ -19,6 +19,8 @@
   \item{print.square.leg}{logical indicating whether the legend identifying the meaning of the numbers in each square should be included.}
   \item{scale.text}{optional scale factor to be applied to text, numbers bigger than 1 make text bigger than default and numbers smaller than 1 do the opposite}
   \item{space.text}{optional text spacing factor, numbers bigger than 1 push text toward the extent of the boxes and numbers smaller than one bring text in toward the center}
+  \item{print.est}{logical argument indicating whether the estimates should be printed in the boxes}
+  \item{print.se}{logical argument indicating whether the standard errors should be printed in the boxes}
   \item{...}{Other arguments to be passed to plot, currently not implemented}
 }
 \value{

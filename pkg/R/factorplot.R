@@ -265,7 +265,8 @@ squares <- function(ll, width=1,col){
 }
 
 plot.factorplot <- function(x, ..., abbrev.char=10, polycol=NULL, textcol = NULL, trans=NULL, 
-	print.sig.leg=TRUE, print.square.leg=TRUE, scale.text=1, space.text=1){
+	print.sig.leg=TRUE, print.square.leg=TRUE, scale.text=1, space.text=1, print.est=TRUE, 
+	print.se=TRUE){
 r.bdiff <- x$b.diff[rev(1:nrow(x$b.diff)), ]
 r.bsd <- x$b.sd[rev(1:nrow(x$b.sd)), ]
 use.pval <- x$pval
@@ -309,10 +310,14 @@ for(i in rseq){
                 col.ind <- 2
                 }
  	squares(c(j, i), col = colvec[col.ind])
+	if(print.est){
     text(j+.5, i+.5+((.05*log(nrow(x$b.diff)))*space.text), sprintf("%.2f", r.bdiff[i,j]), font=2, 
         cex=(1-(.0275*(nrow(x$b.diff)-2)))*scale.text, col=text.col[col.ind])
+	}
+	if(print.se){
     text(j+.5, i+.5-((.05*log(nrow(x$b.diff)))*space.text), sprintf("%.2f", r.bsd[i,j]), font=3, 
        cex=1-(.0275*(nrow(x$b.diff)-2)), col=text.col[col.ind])
+	}
     }
 m <- m+1
 }
