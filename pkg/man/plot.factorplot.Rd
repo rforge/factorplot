@@ -5,7 +5,8 @@
 }
 \usage{
 \method{plot}{factorplot}(x, ..., abbrev.char=10, polycol=NULL, 
-	textcol=NULL, trans=NULL, print.sig.leg=TRUE, print.square.leg=TRUE)
+	textcol=NULL, trans=NULL, print.sig.leg=TRUE, print.square.leg=TRUE, 
+	scale.text=1, space.text=1)
 }
 \arguments{
   \item{x}{An object of class factorplot, produced by \code{\link{factorplot}}.
@@ -16,6 +17,8 @@
   \item{trans}{A character string representing the post-hypothesis-testing transformation to be performed on the estimates.  For example, if the estimates provided to the \code{factorplot} command are log-floating absolute risks, you could use the transformation \sQuote{exp}.  The transformation is performed through a call to \code{do.call}}
   \item{print.sig.leg}{logical indicating whether the legend identifying the meaning of the different colors should be included.}
   \item{print.square.leg}{logical indicating whether the legend identifying the meaning of the numbers in each square should be included.}
+  \item{scale.text}{optional scale factor to be applied to text, numbers bigger than 1 make text bigger than default and numbers smaller than 1 do the opposite}
+  \item{space.text}{optional text spacing factor, numbers bigger than 1 push text toward the extent of the boxes and numbers smaller than one bring text in toward the center}
   \item{...}{Other arguments to be passed to plot, currently not implemented}
 }
 \value{
@@ -37,7 +40,6 @@ names(est1) <- c(
      "Intestinal metaplasia III", 
      "Dysplasia")
 
-plummer_fp1 <- factorplot2(est1, var1, Inf)
-plot(plummer_fp1, trans="exp", 
-    bonferroni=FALSE, abbrev.char = 100)
+plummer_fp1 <- factorplot(est1, var=var1, resdf=Inf)
+plot(plummer_fp1, trans="exp", abbrev.char = 100)
 }

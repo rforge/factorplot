@@ -23,16 +23,3 @@ Maintainer: Dave Armstrong <davearmstrong.ps@gmail.com>
 ~~ Literature or other references for background information ~~
 }
 \keyword{package}
-\examples{
-x <- as.factor(round(runif(1000, .5,20.5)))
-levels(x) <- paste("lab", 1:20, sep="")
-X <- model.matrix(~x)
-b <- rnorm(ncol(X),0,4)
-Y.hat <- X \%*\% b 
-Y <- Y.hat  + rnorm(1000)
-mod <- lm(Y ~ x)
-fp <- factorplot(mod, "x", pval=0.05, order="alph")
-print(fp)
-summary(fp)
-plot(fp)
-}

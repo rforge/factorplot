@@ -32,5 +32,5 @@ names(est1) <- c(
      "Intestinal metaplasia II", 
      "Intestinal metaplasia III", 
      "Dysplasia")
-plummer_fp1 <- factorplot2(est1, var1, Inf)
+plummer_fp1 <- factorplot(est1, var=var1, resdf=Inf)
 print(plummer_fp1, trans="exp")}
