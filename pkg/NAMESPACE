@@ -1,5 +1,8 @@
-export(factorplot, factorplot2, squares)
+export(factorplot, squares)
 
+S3method(factorplot, glm)
+S3method(factorplot, glht)
+S3method(factorplot, multinom)
 S3method(print, factorplot)
 S3method(summary, factorplot)
 S3method(plot, factorplot)

@@ -1,25 +1,39 @@
 \encoding{UTF-8}
 \name{factorplot}
 \alias{factorplot}
-\title{Exact Factor Contrast Differences}
+\alias{factorplot.glm}
+\alias{factorplot.glht}
+\alias{factorplot.multinom}
+\alias{factorplot.default}
+
+\title{Calculate Pairwise Differences}
 \description{
-This function calculates all pairwise difference in the coefficients for factor covariates in linear models and GLMs.  
+This function calculates all pairwise difference from the input data.  The input data can be the result of a GLM (produced with \code{\link{glm}}), a multinomial logit model (produced with \code{multinom} from the \pkg{nnet} package), a general linear hypothesis test (produced with \code{\link{glht}} from the \pkg{multcomp} package) or any vector of values and a corresponding variance-covariance matrix. 
 }
 \usage{
-factorplot(obj, factor.variable=NULL, pval = 0.05, 
-	two.sided=TRUE, order="natural", adjust.method="none")
+\method{glm}{factorplot}(obj, factor.variable=NULL, order="natural", adjust.method="none", 
+    mcp.args = list(), ...)
+\method{glht}{facgtorplot}(obj, adjust.method="none", ...)
+\method{multinom}{factorplot}(obj, variable = NULL, pval = .05, two.sided=T, order="natural", 
+    adjust.method="none")
+\method{default}{factorplot}(obj, var, resdf, pval=0.05, two.sided=TRUE, order="natural", 
+    adjust.method="none")
 }
 \arguments{
-  \item{obj}{An object of class lm or glm}
-  \item{factor.variable}{String containing the name of the factor to be plotted}
-  \item{pval}{The (uncorrected) Type I error probability required, defaults to 0.05}
+  \item{obj}{An object of class \code{glm} or \code{lm}, \code{glht}, \code{multinom} or a vector of values (of class \code{numeric}) for which pairwise differences will be calculated.}
+  \item{factor.variable}{String containing the name of the factor for which pairwise coefficient differences will be calculated (if a \code{glm} or \code{lm} class object is passed to the function)}
+  \item{variable}{String containing the name of the coefficient for which pairwise differences will be calculated if a \code{multinom} class object is passed to the function}
+  \item{var}{Variance-covariance matrix to be used if \code{obj} is a numeric vector.  This could also be a vector of quasi/floating variances from which a diagonal variance-covariance matrix will be produced}
+  \item{resdf}{Residual degrees of freedom used as the degrees of freedom for the t-distribution from which p-values will be generated if \code{obj} is a numeric vector}
+  \item{pval}{The (uncorrected) Type I error probability required, default = 0.05}
   \item{two.sided}{Logical argument indicating whether the hypothesis test should be against a two-sided alternative if TRUE (default) or a one-sided alternative if FALSE}
   \item{order}{One of \sQuote{natural}, \sQuote{alph}, or \sQuote{size} indicating how the levels of the factor should be ordered for presentation.  The \sQuote{natural} option (the default) leaves the levels as they are in the factor contrasts.  \sQuote{alph} sorts the levels alphabetically and \sQuote{size} sorts the levels by size of coefficient.}
-  \item{adjust.method}{One of the methods allowed by \code{\link{p.adjust}} in \pkg{stats} - \sQuote{holm}, \sQuote{hochberg}, \sQuote{hommel}, \sQuote{bonferroni}, \sQuote{BH}, \sQuote{BY}, \sQuote{fdr}, \sQuote{none}.  See help for the \code{p.adjust} for more information on these different adjustment methods}	
+  \item{adjust.method}{For objects of class \code{multinom} and \code{numeric} - one of the methods allowed by \code{\link{p.adjust}} in \pkg{stats} - \sQuote{holm}, \sQuote{hochberg}, \sQuote{hommel}, \sQuote{bonferroni}, \sQuote{BH}, \sQuote{BY}, \sQuote{fdr}, \sQuote{none}.  See help for the \code{\link{p.adjust}} for more information on these different adjustment methods.  For objects of class \code{glm}, \code{lm} or \code{glht}, additional arguments of \sQuote{single-step}, \sQuote{Shaffer}, \sQuote{Westfall} and \sQuote{free} are possible.  See \code{\link{glht}} from the \pkg{multcomp} package for details. }	
+  \item{mcp.args}{A list of arguments passed down to \code{\link{mcp}}, the results of which will be passed to \code{\link{glht}} for objects of class \code{lm} or \code{glm}}
+  \item{...}{Additional arguments to be passed to \code{\link{summary.glht}}, including, but not limited to \code{level} and \code{alternative}.}
 }
 \details{
-This function calculates all pairwise differences in the coefficients for factor covariates in linear models and GLMs.  Specifically, it calculates:\cr\cr
- \deqn{\frac{b_{row}-b_{col}}{\sqrt{V(b_{row}-b_{col})}}}{(b[row]-b[col])/V(b[row]-b[col])^(1/2)}\cr where \deqn{V(b_{row}-b_{col}) = V(b_{row}) + V(b_{col}) + 2(1)(-1)V(b_{row},b_{col})}{V(b[row]-b[col]) = V(b[row]) + V(b[col]) + 2(1)(-1)V(b[row],b[col])}\cr\cr  This function is an alternative to using floating (quasi-) variances to present pairwise differences in coefficients (or floating absolute risk). \cr\cr
+This function calculates pairwise differences that can be passed to a novel plotting method that does not suffer from some of the same problems as floating/quasi confidence intervals and is easier to apprehend immediately than a compact letter display.  
 
 While the factorplot function and its print and summary methods work equally well regardless of the number of levels in the \code{factor.variable}, the plot function automatically scales the resulting graph to the appropriate size, but will be less useful as the number of contrasts gets large (e.g., > 30).  If more than one factor covariate is present and the \code{factor.variable} option is NULL, the function generates a text-based menu in the R GUI that will allow the users to pick the term for which they want to calculate the results.    
 }

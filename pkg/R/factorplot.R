@@ -1,123 +1,192 @@
-factorplot <-function(obj, factor.variable=NULL, pval=0.05, two.sided=TRUE, order="natural", adjust.method="none"){
-require(multcomp)
-tmp.classes <- attr(terms(obj), "dataClasses")
-tmp.classes <- tmp.classes[tmp.classes == "factor"]
-tmp.levs <- NULL
-for(i in 1:length(tmp.classes)){
-    tmp.levs <- c(tmp.levs, length(levels(obj$model[[names(tmp.classes)[i]]])))
+factorplot <- function(obj,...){
+	UseMethod("factorplot")
 }
-tmp.class <- tmp.classes[tmp.levs > 2]
-if(is.null(factor.variable)){
-{if(length(tmp.classes) > 1){
-    myvar <- names(tmp.classes)[menu(names(tmp.classes))]
+
+factorplot.glm <-function(obj, factor.variable=NULL, order="natural", adjust.method="none", mcp.args = list(), ...){
+	require(multcomp)
+	tmp.classes <- attr(terms(obj), "dataClasses")
+	tmp.classes <- tmp.classes[tmp.classes == "factor"]
+	tmp.levs <- NULL
+	if(level %in% names(...)){pval <- 1-level}
+	else{pval <- .05}
+	for(i in 1:length(tmp.classes)){
+	    tmp.levs <- c(tmp.levs, length(levels(obj$model[[names(tmp.classes)[i]]])))
+	}
+	tmp.class <- tmp.classes[tmp.levs > 2]
+	if(is.null(factor.variable)){
+	{if(length(tmp.classes) > 1){
+	    myvar <- names(tmp.classes)[menu(names(tmp.classes))]
+	}
+	else{ 
+	    myvar <- names(tmp.classes[1])
+	}}
+	}
+	else{
+	    myvar <- factor.variable
+	}
+	mcp.args[[myvar]] <- 'Tukey'
+	glht.obj <- do.call(glht, list(model=obj, linfct = do.call(mcp, mcp.arg.list)))
+	s.glht.obj <- summary(glht.obj, type=adjust.method, level=1-pval, ...) 
+	levs <- mod$xlevels[[myvar]]
+	if(!(order %in% c("alph", "natural", "size")))stop("Order must be one of 'size', 'natural', 'alph'")
+	varind <- which(attr(terms(obj), "term.labels") == myvar)
+	bcols <- which(attr(model.matrix(obj), "assign") == varind)
+	bcoef <- c(0, obj$coef[bcols])
+	names(bcoef) <- levs
+	tmp.ord <- switch(order, 
+		alph = order(names(bcoef)), 
+		size = order(bcoef), 
+		natural = 1:length(levs))
+
+	b.diff <- b.sd <- b.p <- array(NA, dim=c(length(levs), length(levs)))
+	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- colnames(b.p) <- rownames(b.p) <- levs[tmp.ord]
+	proc.names <- do.call(rbind, strsplit(names(s.glht.obj$test$coef), split=" - "))
+	rc <- apply(proc.names, c(1,2), function(x)which(colnames(b.diff) == x))[,c(2,1)]
+	b.diff[rc] <- s.glht.obj$test$coef
+	b.sd[rc] <- s.glht.obj$test$sigma
+	b.p[rc] <- s.glht.obj$test$pvalues
+	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.sd <- b.sd[-nrow(b.sd), -1]
+	b.p <- b.p[-nrow(b.p), -1]
+	rns <- rownames(b.diff)
+	cns <- colnames(b.diff)
+	rns.split <- strsplit(rns, split=" ")
+	rns.out <- sapply(rns.split, paste, collapse="_")
+	cns.split <- strsplit(cns, split=" ")
+	cns.out <- sapply(cns.split, paste, collapse="_")
+	rownames(b.p) <- rownames(b.diff) <- rownames(b.sd) <- rns.out
+	colnames(b.p) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.p, p=pval)
+	class(ret) <- c("factorplot", "list")
+	return(ret)
 }
-else{ 
-    myvar <- names(tmp.classes[1])
-}}
+
+factorplot.glht <-function(obj, adjust.method="none", ...){
+	require(multcomp)
+	if(level %in% names(...)){pval <- 1-level}
+	else{pval <- .05}
+	s.glht.obj <- summary(obj, type=adjust.method, ...) 
+	proc.names <- do.call(rbind, strsplit(names(s.glht.obj$test$coef), split=" - "))
+	levs <- unique(c(proc.names[,c(2,1)]))
+	b.diff <- b.sd <- b.p <- array(NA, dim=c(length(levs), length(levs)))
+	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- colnames(b.p) <- rownames(b.p) <- levs
+	proc.names <- do.call(rbind, strsplit(names(s.glht.obj$test$coef), split=" - "))
+	rc <- apply(proc.names, c(1,2), function(x)which(colnames(b.diff) == x))[,c(2,1)]
+	b.diff[rc] <- s.glht.obj$test$coef
+	b.sd[rc] <- s.glht.obj$test$sigma
+	b.p[rc] <- s.glht.obj$test$pvalues
+	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.sd <- b.sd[-nrow(b.sd), -1]
+	b.p <- b.p[-nrow(b.p), -1]
+	rns <- rownames(b.diff)
+	cns <- colnames(b.diff)
+	rns.split <- strsplit(rns, split=" ")
+	rns.out <- sapply(rns.split, paste, collapse="_")
+	cns.split <- strsplit(cns, split=" ")
+	cns.out <- sapply(cns.split, paste, collapse="_")
+	rownames(b.p) <- rownames(b.diff) <- rownames(b.sd) <- rns.out
+	colnames(b.p) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.p, p=pval)
+	class(ret) <- c("factorplot", "list")
+	return(ret)
 }
-else{
-    myvar <- factor.variable
-}
-varind <- which(attr(terms(obj), "term.labels") == myvar)
-bcols <- which(attr(model.matrix(obj), "assign") == varind)
-ref <- which(apply(contrasts(obj$model[[myvar]]), 1, sum) == 0)
-b <- c(0, coef(obj)[bcols])
-names(b) <- c(levels(obj$model[[myvar]])[ref], levels(obj$model[[myvar]])[-ref])
-v <- vcov(obj)[bcols, bcols]
-v <- cbind(0, v)
-v <- rbind(0, v)
-colnames(v) <- rownames(v) <- names(b)
-if(order == "alph"){
-	tmp.ord <- (1:length(b))[order(names(b))]
-	b <- b[tmp.ord]
-	v <- v[tmp.ord, tmp.ord]
-} else if(order == "size"){
-	tmp.ord <- (1:length(b))[order(b)]
+
+factorplot.default <-function(obj, var, resdf, pval=0.05, two.sided=TRUE, order="natural", adjust.method="none"){
+	require(multcomp)
+	b <- obj
+	if(!is.matrix(var)){
+		v <- diag(var)
+	} else{
+		v <- var
+	}
+	if(is.null(names(b))){
+		names(b) <- as.character(1:length(b))
+	}
+	levs <- colnames(v) <- rownames(v) <- names(b)
+	if(!(order %in% c("alph", "natural", "size")))stop("Order must be one of 'size', 'natural', 'alph'")
+	tmp.ord <- switch(order, 
+		alph = order(names(b)), 
+		size = order(b), 
+		natural = 1:length(levs))
 	b <- b[tmp.ord]
 	v <- v[tmp.ord,tmp.ord]
-} else if(order == "natural"){
-	b <- b
-	v <- v
-} else cat("arg(order) must be one of 'natural', 'alph'or 'size'\n")
-cmbn <- t(combn(length(b), 2))
-diffs <- matrix(0, nrow=length(b), ncol=nrow(cmbn))
-diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- 1
-diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- -1
+	cmbn <- t(combn(length(b), 2))
+	diffs <- matrix(0, nrow=length(b), ncol=nrow(cmbn))
+	diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- -1
+	diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- 1
 
-b.diff <- b.sd <- matrix(NA, ncol=length(b), nrow=length(b))
-b.diff[cmbn] <- b %*% diffs
-b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
-colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
-b.diff <- b.diff[-nrow(b.diff),-1]
-b.sd <- b.sd[-nrow(b.sd),-1]
+	b.diff <- b.sd <- matrix(NA, ncol=length(b), nrow=length(b))
+	b.diff[cmbn] <- b %*% diffs
+	b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
+	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
+	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.sd <- b.sd[-nrow(b.sd),-1]
 
-b.t <- b.diff/b.sd
-rns <- rownames(b.t)
-cns <- colnames(b.t)
-rns.split <- strsplit(rns, split=" ")
-rns.out <- sapply(rns.split, paste, collapse="_")
-cns.split <- strsplit(cns, split=" ")
-cns.out <- sapply(cns.split, paste, collapse="_")
-rownames(b.t) <- rownames(b.diff) <- rownames(b.sd) <- rns.out
-colnames(b.t) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
-b.p <- (2^(as.numeric(two.sided)))*pt(abs(b.t), obj$df.residual,lower.tail=FALSE)
-b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
-ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.p, adj.pval = b.bp, p = pval)
-class(ret) <- c("factorplot", "list")
-return(ret)
+	b.t <- b.diff/b.sd
+	rns <- rownames(b.t)
+	cns <- colnames(b.t)
+	rns.split <- strsplit(rns, split=" ")
+	rns.out <- sapply(rns.split, paste, collapse="_")
+	cns.split <- strsplit(cns, split=" ")
+	cns.out <- sapply(cns.split, paste, collapse="_")
+	rownames(b.t) <- rownames(b.diff) <- rownames(b.sd) <- rns.out
+	colnames(b.t) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
+	b.p <- (2^(as.numeric(two.sided)))*pt(abs(b.t), resdf,lower.tail=FALSE)
+	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p = pval)
+	class(ret) <- c("factorplot", "list")
+	return(ret)
 }
 
-factorplot2 <-function(est, var, resdf, pval=0.05, two.sided=TRUE, order="natural", adjust.method="none"){
-require(multcomp)
-b <- est
-if(!is.matrix(var)){
-	v <- diag(var)
-} else{
-	v <- var
-}
-if(is.null(names(b))){
-	names(b) <- as.character(1:length(b))
-}
-colnames(v) <- rownames(v) <- names(b)
-if(order == "alph"){
-	tmp.ord <- (1:length(b))[order(names(b))]
-	b <- b[tmp.ord]
-	v <- v[tmp.ord, tmp.ord]
-} else if(order == "size"){
-	tmp.ord <- (1:length(b))[order(b)]
+
+
+factorplot.multinom <- function(obj, variable = NULL, pval = .05, two.sided=T, order="natural", adjust.method="none"){
+	v <- vcov(obj)
+	b <- c(t(coef(obj)))
+	names(b) <- rownames(v)
+	inds <- which(gsub("^[^\\:]+\\:\\s*", "", names(b))	 == variable)
+	v <- v[inds,inds]
+	b <- b[inds]
+	b <- c(0,b)
+	v <- rbind(0, cbind(0, v))
+	levs <- names(b) <- obj$lev
+	resdf <- nrow(obj$residuals) - length(c(coef(obj)))
+	if(!(order %in% c("alph", "natural", "size")))stop("Order must be one of 'size', 'natural', 'alph'")
+	tmp.ord <- switch(order, 
+		alph = order(names(b)), 
+		size = order(b), 
+		natural = 1:length(levs))
 	b <- b[tmp.ord]
 	v <- v[tmp.ord,tmp.ord]
-} else if(order == "natural"){
-	b <- b
-	v <- v
-} else cat("arg(order) must be one of 'natural', 'alph'or 'size'\n")
-cmbn <- t(combn(length(b), 2))
-diffs <- matrix(0, nrow=length(b), ncol=nrow(cmbn))
-diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- 1
-diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- -1
+	cmbn <- t(combn(length(b), 2))
+	diffs <- matrix(0, nrow=length(b), ncol=nrow(cmbn))
+	diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- -1
+	diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- 1
 
-b.diff <- b.sd <- matrix(NA, ncol=length(b), nrow=length(b))
-b.diff[cmbn] <- b %*% diffs
-b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
-colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
-b.diff <- b.diff[-nrow(b.diff),-1]
-b.sd <- b.sd[-nrow(b.sd),-1]
+	b.diff <- b.sd <- matrix(NA, ncol=length(b), nrow=length(b))
+	b.diff[cmbn] <- b %*% diffs
+	b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
+	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
+	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.sd <- b.sd[-nrow(b.sd),-1]
 
-b.t <- b.diff/b.sd
-rns <- rownames(b.t)
-cns <- colnames(b.t)
-rns.split <- strsplit(rns, split=" ")
-rns.out <- sapply(rns.split, paste, collapse="_")
-cns.split <- strsplit(cns, split=" ")
-cns.out <- sapply(cns.split, paste, collapse="_")
-rownames(b.t) <- rownames(b.diff) <- rownames(b.sd) <- rns.out
-colnames(b.t) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
-b.p <- (2^(as.numeric(two.sided)))*pt(abs(b.t), resdf,lower.tail=FALSE)
-b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
-ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.p, adj.pval = b.bp, p = pval)
-class(ret) <- c("factorplot", "list")
-return(ret)
+	b.t <- b.diff/b.sd
+	rns <- rownames(b.t)
+	cns <- colnames(b.t)
+	rns.split <- strsplit(rns, split=" ")
+	rns.out <- sapply(rns.split, paste, collapse="_")
+	cns.split <- strsplit(cns, split=" ")
+	cns.out <- sapply(cns.split, paste, collapse="_")
+	rownames(b.t) <- rownames(b.diff) <- rownames(b.sd) <- rns.out
+	colnames(b.t) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
+	b.p <- (2^(as.numeric(two.sided)))*pt(abs(b.t), resdf,lower.tail=FALSE)
+	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp,  p = pval)
+	class(ret) <- c("factorplot", "list")
+	return(ret)
 }
+
+
 
 squares <- function(ll, width=1,col){ 
     poly.x <- c(ll[1], ll[1]+width, ll[1]+width, ll[1], ll[1])
@@ -126,7 +195,7 @@ squares <- function(ll, width=1,col){
 }
 
 plot.factorplot <- function(x, ..., abbrev.char=10, polycol=NULL, textcol = NULL, trans=NULL, 
-	print.sig.leg=TRUE, print.square.leg=TRUE){
+	print.sig.leg=TRUE, print.square.leg=TRUE, scale.text=1, space.text=1){
 r.bdiff <- x$b.diff[rev(1:nrow(x$b.diff)), ]
 r.bsd <- x$b.sd[rev(1:nrow(x$b.sd)), ]
 use.pval <- x$adj.pval
@@ -170,9 +239,9 @@ for(i in rseq){
                 col.ind <- 2
                 }
  	squares(c(j, i), col = colvec[col.ind])
-    text(j+.5, i+.5+(.05*log(nrow(x$b.diff))), sprintf("%.2f", r.bdiff[i,j]), font=2, 
-        cex=1-(.0275*(nrow(x$b.diff)-2)), col=text.col[col.ind])
-    text(j+.5, i+.5-(.05*log(nrow(x$b.diff))), sprintf("%.2f", r.bsd[i,j]), font=3, 
+    text(j+.5, i+.5+((.05*log(nrow(x$b.diff)))*space.text), sprintf("%.2f", r.bdiff[i,j]), font=2, 
+        cex=(1-(.0275*(nrow(x$b.diff)-2)))*scale.text, col=text.col[col.ind])
+    text(j+.5, i+.5-((.05*log(nrow(x$b.diff)))*space.text), sprintf("%.2f", r.bsd[i,j]), font=3, 
        cex=1-(.0275*(nrow(x$b.diff)-2)), col=text.col[col.ind])
     }
 m <- m+1
@@ -195,7 +264,7 @@ print.factorplot <- function(x, ..., digits=3, sig=FALSE, trans=NULL){
 	if(!is.null(trans)){
 		x$b.diff <- do.call(trans, list(x$b.diff))
 	}
-	tmp <- cbind(c(x$b.diff), c(x$b.sd), c(x$adj.pval))
+	tmp <- cbind(c(x$b.diff), c(x$b.sd), c(x$pval))
 	tmp <- round(tmp, 3)
 	rownames(tmp) <- strnames
 	colnames(tmp) <- c("Difference", "SE", "p.val")
@@ -224,7 +293,7 @@ summary.factorplot <- function(object, ...){
 	rownames(tmp)[nrow(tmp)] <- colnames(tmp)[ncol(tmp)]
 	colnames(tmp)[1] <- rownames(tmp)[1]
 	tmp[lower.tri(tmp)] <- -t(tmp)[lower.tri(t(tmp))]
-	tmp.p <- object$adj.pval
+	tmp.p <- object$pval
 	tmp.p <- cbind(NA, tmp.p)
 	tmp.p <- rbind(tmp.p, NA)
 	tmp.p[lower.tri(tmp.p)] <- t(tmp.p)[lower.tri(t(tmp.p))]
