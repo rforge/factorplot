@@ -316,7 +316,7 @@ for(i in rseq){
 	}
 	if(print.se){
     text(j+.5, i+.5-((.05*log(nrow(x$b.diff)))*space.text), sprintf("%.2f", r.bsd[i,j]), font=3, 
-       cex=1-(.0275*(nrow(x$b.diff)-2)), col=text.col[col.ind])
+       cex=(1-(.0275*(nrow(x$b.diff)-2)))*scale.text, col=text.col[col.ind])
 	}
     }
 m <- m+1
