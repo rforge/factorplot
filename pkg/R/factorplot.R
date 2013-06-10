@@ -49,6 +49,7 @@ factorplot.glm <-function(obj, adjust.method="none", order="natural", factor.var
 	b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
 	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- -b.diff
 	b.sd <- b.sd[-nrow(b.sd),-1]
 	b.t <- b.diff/b.sd
 	rns <- rownames(b.t)
@@ -113,6 +114,7 @@ factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.vari
 	b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
 	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- -b.diff
 	b.sd <- b.sd[-nrow(b.sd),-1]
 	b.t <- b.diff/b.sd
 	rns <- rownames(b.t)
@@ -130,21 +132,20 @@ factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.vari
 	return(ret)
 }
 
-factorplot.glht <-function(obj, adjust.method="none", ...){
+factorplot.summary.glht <-function(obj, ...){
 	require(multcomp)
 	otherargs <- list(...)
-	if("level" %in% names(otherargs)){pval <- 1-otherargs$level}
+	if("pval" %in% names(otherargs)){pval <- otherargs$pval}
 	else{pval <- .05}
-	s.glht.obj <- summary(obj, test=adjusted(adjust.method), ...)
-	proc.names <- do.call(rbind, strsplit(names(s.glht.obj$test$coef), split=" - "))
+	proc.names <- do.call(rbind, strsplit(names(obj$test$coef), split=" - "))
 	levs <- unique(c(proc.names[,c(2,1)]))
 	b.diff <- b.sd <- b.p <- array(NA, dim=c(length(levs), length(levs)))
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- colnames(b.p) <- rownames(b.p) <- levs
-	proc.names <- do.call(rbind, strsplit(names(s.glht.obj$test$coef), split=" - "))
+	proc.names <- do.call(rbind, strsplit(names(obj$test$coef), split=" - "))
 	rc <- apply(proc.names, c(1,2), function(x)which(colnames(b.diff) == x))[,c(2,1)]
-	b.diff[rc] <- s.glht.obj$test$coef
-	b.sd[rc] <- s.glht.obj$test$sigma
-	b.p[rc] <- s.glht.obj$test$pvalues
+	b.diff[rc] <- obj$test$coef
+	b.sd[rc] <- obj$test$sigma
+	b.p[rc] <- obj$test$pvalues
 	b.diff <- b.diff[-nrow(b.diff),-1]
 	b.sd <- b.sd[-nrow(b.sd), -1]
 	b.p <- b.p[-nrow(b.p), -1]
@@ -160,6 +161,16 @@ factorplot.glht <-function(obj, adjust.method="none", ...){
 	class(ret) <- c("factorplot", "list")
 	return(ret)
 }
+
+factorplot.glht <-function(obj, adjust.method="none", pval=.05, ...){
+	require(multcomp)
+	s.glht.obj <- summary(obj, test=adjusted(adjust.method), ...)
+	ret <- factorplot:::factorplot.summary.glht(s.glht.obj)
+	class(ret) <- "factorplot"
+	return(ret)
+}
+
+
 
 factorplot.default <-function(obj, adjust.method="none", order="natural", var, resdf, pval=0.05, two.sided=TRUE, ...){
 	require(multcomp)
@@ -190,6 +201,7 @@ factorplot.default <-function(obj, adjust.method="none", order="natural", var, r
 	b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
 	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- -b.diff
 	b.sd <- b.sd[-nrow(b.sd),-1]
 
 	b.t <- b.diff/b.sd
@@ -238,8 +250,8 @@ factorplot.multinom <- function(obj, adjust.method="none", order="natural", vari
 	b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
 	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- - b.diff
 	b.sd <- b.sd[-nrow(b.sd),-1]
-
 	b.t <- b.diff/b.sd
 	rns <- rownames(b.t)
 	cns <- colnames(b.t)
@@ -300,10 +312,11 @@ if(!is.null(trans)){
 m <- 1
 for(i in rseq){ 
     for(j in m:nrow(x$b.diff)){
-        if(use.pval[m,j] < x$p & x$b.diff[m,j] < 0){
+
+        if(use.pval[m,j] < ifelse("p" %in% names(x), x$p, .05) & x$b.diff[m,j] < 0){
             col.ind <- 1
             }
-            else if(use.pval[m,j] < x$p & x$b.diff[m,j] > 0){
+            else if(use.pval[m,j] < ifelse("p" %in% names(x), x$p, .05) & x$b.diff[m,j] > 0){
                 col.ind <- 3
                 }
                 else{
@@ -323,8 +336,8 @@ m <- m+1
 }
 leg <- legend(1,1, c("Significantly < 0", "Not Significant", "Significantly > 0"), fill=colvec, 
     bty="n", xjust=0, yjust=0, cex=ifelse(nrow(x$b.diff) == 2, .75, 1), plot=print.sig.leg)
-legend(1+leg$rect$w*as.numeric(print.sig.leg), 1, c(expression(bold("bold = ")~b[row]-b[col]), 
-	expression(italic("ital = ")~SE(b[row]-b[col]))), xjust=0, yjust=0, bty="n",
+legend(1+leg$rect$w*as.numeric(print.sig.leg), 1, c(expression(bold("bold = ")~b[col]-b[row]), 
+	expression(italic("ital = ")~SE(b[col]-b[row]))), xjust=0, yjust=0, bty="n",
 	cex=ifelse(nrow(x$b.diff) == 2, .75, 1), plot=print.square.leg)
 }
 
@@ -346,8 +359,8 @@ print.factorplot <- function(x, ..., digits=3, sig=FALSE, trans=NULL){
 	tmp <- as.data.frame(tmp)
 	tmp <- na.omit(tmp)
 	if(sig == TRUE){
-		if(any(tmp$p.val > x$p)){
-		tmp <- tmp[-which(tmp$p.val > x$p), ]
+		if(any(tmp$p.val > ifelse("p" %in% names(x), x$p, .05))){
+		tmp <- tmp[-which(tmp$p.val > ifelse("p" %in% names(x), x$p, .05)), ]
 		}
 	}
 	t1c <- do.call(rbind, strsplit(as.character(tmp[,1]), split=".", fixed=T))

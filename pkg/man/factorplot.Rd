@@ -4,6 +4,7 @@
 \alias{factorplot.lm}
 \alias{factorplot.glm}
 \alias{factorplot.glht}
+\alias{factorplot.summary.glht}
 \alias{factorplot.multinom}
 \alias{factorplot.default}
 
@@ -14,12 +15,13 @@ This function calculates all pairwise difference from the input data.  The input
 \usage{
 \method{factorplot}{glm}(obj, adjust.method="none", order="natural", factor.variable=NULL, pval=.05, two.sided=TRUE, ...)
 \method{factorplot}{lm}(obj, adjust.method="none", order="natural", factor.variable=NULL, pval=.05, two.sided=TRUE, ...)
-\method{factorplot}{glht}(obj, adjust.method="none", ...)
+\method{factorplot}{glht}(obj, adjust.method="none", pval=.05, ...)
+\method{factorplot}{summary.glht}(obj, ...)
 \method{factorplot}{multinom}(obj, adjust.method="none", order="natural", variable, pval = .05, two.sided=TRUE, ...)
 \method{factorplot}{default}(obj, adjust.method="none", order="natural", var, resdf, pval=0.05, two.sided=TRUE, ...)
 }
 \arguments{
-  \item{obj}{An object of class \code{glm} or \code{lm}, \code{glht}, \code{multinom} or a vector of values (of class \code{numeric}) for which pairwise differences will be calculated.}
+  \item{obj}{An object of class \code{glm} or \code{lm}, \code{glht}, \code{summary.glht}, \code{multinom} or a vector of values (of class \code{numeric}) for which pairwise differences will be calculated.}
   \item{factor.variable}{String containing the name of the factor for which pairwise coefficient differences will be calculated (if a \code{glm} or \code{lm} class object is passed to the function)}
   \item{variable}{String containing the name of the column of the model matrix for which pairwise differences will be calculated if a \code{multinom} class object is passed to the function}
   \item{var}{Variance-covariance matrix to be used if \code{obj} is a numeric vector.  This could also be a vector of quasi/floating variances from which a diagonal variance-covariance matrix will be produced}
