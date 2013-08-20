@@ -41,8 +41,8 @@ factorplot.glm <-function(obj, adjust.method="none", order="natural", factor.var
 	v <- v[tmp.ord, tmp.ord]
 	cmbn <- t(combn(length(b), 2))
 	diffs <- matrix(0, nrow=length(b), ncol=nrow(cmbn))
-	diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- 1
-	diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- -1
+	diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- -1
+	diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- 1
 
 	b.diff <- b.sd <- matrix(NA, ncol=length(b), nrow=length(b))
 	b.diff[cmbn] <- b %*% diffs
@@ -106,8 +106,8 @@ factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.vari
 	v <- v[tmp.ord, tmp.ord]
 	cmbn <- t(combn(length(b), 2))
 	diffs <- matrix(0, nrow=length(b), ncol=nrow(cmbn))
-	diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- 1
-	diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- -1
+	diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- -1
+	diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- 1
 
 	b.diff <- b.sd <- matrix(NA, ncol=length(b), nrow=length(b))
 	b.diff[cmbn] <- b %*% diffs
