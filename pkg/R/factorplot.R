@@ -3,7 +3,6 @@ factorplot <- function(obj, adjust.method="none",  ...){
 }
 
 factorplot.glm <-function(obj, adjust.method="none", order="natural", factor.variable=NULL, pval=0.05, two.sided=TRUE, ...){
-	require(multcomp)
 	tmp.classes <- attr(terms(obj), "dataClasses")
 	tmp.classes <- tmp.classes[tmp.classes == "factor"]
 	tmp.levs <- NULL
@@ -68,7 +67,6 @@ factorplot.glm <-function(obj, adjust.method="none", order="natural", factor.var
 }
 
 factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.variable=NULL, pval=0.05, two.sided=TRUE, ...){
-	require(multcomp)
 	tmp.classes <- attr(terms(obj), "dataClasses")
 	tmp.classes <- tmp.classes[tmp.classes == "factor"]
 	tmp.levs <- NULL
@@ -133,7 +131,6 @@ factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.vari
 }
 
 factorplot.summary.glht <-function(obj, ...){
-	require(multcomp)
 	otherargs <- list(...)
 	if("pval" %in% names(otherargs)){pval <- otherargs$pval}
 	else{pval <- .05}
@@ -163,9 +160,8 @@ factorplot.summary.glht <-function(obj, ...){
 }
 
 factorplot.glht <-function(obj, adjust.method="none", pval=.05, ...){
-	require(multcomp)
 	s.glht.obj <- summary(obj, test=adjusted(adjust.method), ...)
-	ret <- factorplot:::factorplot.summary.glht(s.glht.obj)
+	ret <- factorplot(s.glht.obj)
 	class(ret) <- "factorplot"
 	return(ret)
 }
@@ -173,7 +169,6 @@ factorplot.glht <-function(obj, adjust.method="none", pval=.05, ...){
 
 
 factorplot.default <-function(obj, adjust.method="none", order="natural", var, resdf, pval=0.05, two.sided=TRUE, ...){
-	require(multcomp)
 	b <- obj
 	if(!is.matrix(var)){
 		v <- diag(var)

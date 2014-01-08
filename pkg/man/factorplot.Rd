@@ -13,12 +13,16 @@
 This function calculates all pairwise difference from the input data.  The input data can be the result of a GLM (produced with \code{\link{glm}}), a multinomial logit model (produced with \code{multinom} from the \pkg{nnet} package), a general linear hypothesis test (produced with \code{\link{glht}} from the \pkg{multcomp} package) or any vector of values and a corresponding variance-covariance matrix. 
 }
 \usage{
-\method{factorplot}{glm}(obj, adjust.method="none", order="natural", factor.variable=NULL, pval=.05, two.sided=TRUE, ...)
-\method{factorplot}{lm}(obj, adjust.method="none", order="natural", factor.variable=NULL, pval=.05, two.sided=TRUE, ...)
-\method{factorplot}{glht}(obj, adjust.method="none", pval=.05, ...)
-\method{factorplot}{summary.glht}(obj, ...)
-\method{factorplot}{multinom}(obj, adjust.method="none", order="natural", variable, pval = .05, two.sided=TRUE, ...)
-\method{factorplot}{default}(obj, adjust.method="none", order="natural", var, resdf, pval=0.05, two.sided=TRUE, ...)
+\method{factorplot}{glm}(obj, adjust.method="none", order="natural", 
+    factor.variable=NULL, pval=.05, two.sided=TRUE, \dots)
+\method{factorplot}{lm}(obj, adjust.method="none", order="natural", 
+    factor.variable=NULL, pval=.05, two.sided=TRUE, \dots)
+\method{factorplot}{glht}(obj, adjust.method="none", pval=.05, \dots)
+\method{factorplot}{summary.glht}(obj, \dots)
+\method{factorplot}{multinom}(obj, adjust.method="none", order="natural", 
+    variable, pval = .05, two.sided=TRUE, \dots)
+\method{factorplot}{default}(obj, adjust.method="none", order="natural", 
+    var, resdf, pval=0.05, two.sided=TRUE, \dots)
 }
 \arguments{
   \item{obj}{An object of class \code{glm} or \code{lm}, \code{glht}, \code{summary.glht}, \code{multinom} or a vector of values (of class \code{numeric}) for which pairwise differences will be calculated.}
