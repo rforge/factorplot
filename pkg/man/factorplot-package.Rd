@@ -20,6 +20,6 @@ Dave Armstrong
 Maintainer: Dave Armstrong <davearmstrong.ps@gmail.com>
 }
 \references{
-~~ Literature or other references for background information ~~
+Armstrong, David A., II. 2013. factorplot: Improving Presentation of Simple Contrasts in Generalized Linear Models.  \emph{The R Journal}  \bold{5(2)}: 4--15.
 }
 \keyword{package}
