@@ -331,8 +331,8 @@ m <- m+1
 }
 leg <- legend(1,1, c("Significantly < 0", "Not Significant", "Significantly > 0"), fill=colvec, 
     bty="n", xjust=0, yjust=0, cex=ifelse(nrow(x$b.diff) == 2, .75, 1), plot=print.sig.leg)
-legend(1+leg$rect$w*as.numeric(print.sig.leg), 1, c(expression(bold("bold = ")~b[col]-b[row]), 
-	expression(italic("ital = ")~SE(b[col]-b[row]))), xjust=0, yjust=0, bty="n",
+legend(1+leg$rect$w*as.numeric(print.sig.leg), 1, c(expression(bold("bold = ")~b[row]-b[col]), 
+	expression(italic("ital = ")~SE(b[row]-b[col]))), xjust=0, yjust=0, bty="n",
 	cex=ifelse(nrow(x$b.diff) == 2, .75, 1), plot=print.square.leg)
 }
 
